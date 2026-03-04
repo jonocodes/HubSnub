@@ -18,6 +18,7 @@ ALLOWED_HOSTS = [
 ]
 
 INSTALLED_APPS = [
+    "unfold",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -68,6 +69,68 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Unfold admin configuration
+UNFOLD = {
+    "SITE_TITLE": "HubSnub",
+    "SIDEBAR": {
+        "navigation": [
+            {
+                "title": "Notifications",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Preferences",
+                        "icon": "tune",
+                        "link": "/admin/notifications/notificationpreferences/",
+                    },
+                    {
+                        "title": "Watched Repos",
+                        "icon": "visibility",
+                        "link": "/admin/notifications/watchedrepo/",
+                    },
+                    {
+                        "title": "Event Log",
+                        "icon": "list_alt",
+                        "link": "/admin/notifications/notificationlog/",
+                    },
+                ],
+            },
+            {
+                "title": "Tools",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Dry Run",
+                        "icon": "play_circle",
+                        "link": "/admin/dry-run/",
+                    },
+                    {
+                        "title": "Cache Viewer",
+                        "icon": "cached",
+                        "link": "/admin/cache-viewer/",
+                    },
+                ],
+            },
+            {
+                "title": "Auth",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Users",
+                        "icon": "person",
+                        "link": "/admin/auth/user/",
+                    },
+                    {
+                        "title": "Groups",
+                        "icon": "group",
+                        "link": "/admin/auth/group/",
+                    },
+                ],
+            },
+        ],
+    },
+}
 
 # GitHub App configuration
 GITHUB_APP_ID = os.environ.get("GITHUB_APP_ID", "")

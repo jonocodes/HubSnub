@@ -2,8 +2,14 @@ import logging
 
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.auth.admin import GroupAdmin, UserAdmin
+from django.contrib.auth.models import Group, User
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import path
+from django.utils.html import format_html
+from unfold.admin import ModelAdmin, StackedInline
+from unfold.sites import UnfoldAdminSite
 
 from . import cache
 from .github_client import fetch_notifications
@@ -16,8 +22,7 @@ logger = logging.getLogger(__name__)
 # --- NotificationPreferences (singleton) ---
 
 
-@admin.register(NotificationPreferences)
-class NotificationPreferencesAdmin(admin.ModelAdmin):
+class NotificationPreferencesAdmin(ModelAdmin):
     fieldsets = (
         (
             "Review",
@@ -51,7 +56,6 @@ class NotificationPreferencesAdmin(admin.ModelAdmin):
     )
 
     def has_add_permission(self, request):
-        # Only allow one instance
         return not NotificationPreferences.objects.exists()
 
     def has_delete_permission(self, request, obj=None):
@@ -61,7 +65,7 @@ class NotificationPreferencesAdmin(admin.ModelAdmin):
 # --- WatchedRepo + RepoOverride inline ---
 
 
-class RepoOverrideInline(admin.StackedInline):
+class RepoOverrideInline(StackedInline):
     model = RepoOverride
     extra = 0
     fieldsets = (
@@ -84,8 +88,7 @@ class RepoOverrideInline(admin.StackedInline):
     )
 
 
-@admin.register(WatchedRepo)
-class WatchedRepoAdmin(admin.ModelAdmin):
+class WatchedRepoAdmin(ModelAdmin):
     list_display = ("owner", "repo", "is_active")
     list_filter = ("is_active",)
     search_fields = ("owner", "repo")
@@ -95,8 +98,7 @@ class WatchedRepoAdmin(admin.ModelAdmin):
 # --- NotificationLog (read-only) ---
 
 
-@admin.register(NotificationLog)
-class NotificationLogAdmin(admin.ModelAdmin):
+class NotificationLogAdmin(ModelAdmin):
     list_display = (
         "created_at",
         "repo",
@@ -120,8 +122,6 @@ class NotificationLogAdmin(admin.ModelAdmin):
 
     def github_link(self, obj):
         if obj.github_url:
-            from django.utils.html import format_html
-
             return format_html('<a href="{}" target="_blank">View on GitHub</a>', obj.github_url)
         return "-"
 
@@ -140,7 +140,7 @@ class NotificationLogAdmin(admin.ModelAdmin):
 # --- Custom Admin Site with Dry Run and Cache Viewer ---
 
 
-class HubSnubAdminSite(admin.AdminSite):
+class HubSnubAdminSite(UnfoldAdminSite):
     site_title = "HubSnub"
 
     @property
@@ -247,22 +247,17 @@ class HubSnubAdminSite(admin.AdminSite):
     def cache_clear_view(self, request):
         if request.method == "POST":
             cache.clear()
-        from django.shortcuts import redirect
-
         return redirect("admin:cache_viewer")
 
 
 # Create custom admin site instance
 hubsnub_admin = HubSnubAdminSite(name="admin")
 
-# Re-register models on custom admin site
+# Register models on custom admin site
 hubsnub_admin.register(NotificationPreferences, NotificationPreferencesAdmin)
 hubsnub_admin.register(WatchedRepo, WatchedRepoAdmin)
 hubsnub_admin.register(NotificationLog, NotificationLogAdmin)
 
 # Register Django's auth models
-from django.contrib.auth.models import Group, User
-from django.contrib.auth.admin import UserAdmin, GroupAdmin
-
 hubsnub_admin.register(User, UserAdmin)
 hubsnub_admin.register(Group, GroupAdmin)
