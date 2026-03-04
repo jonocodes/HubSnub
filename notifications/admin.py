@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.urls import path
@@ -140,9 +141,21 @@ class NotificationLogAdmin(admin.ModelAdmin):
 
 
 class HubSnubAdminSite(admin.AdminSite):
-    site_header = "HubSnub Administration"
     site_title = "HubSnub"
-    index_title = "Notification Management"
+
+    @property
+    def site_header(self):
+        username = settings.GITHUB_USERNAME
+        if username:
+            return f"HubSnub — @{username}"
+        return "HubSnub"
+
+    @property
+    def index_title(self):
+        username = settings.GITHUB_USERNAME
+        if username:
+            return f"Notification Management for @{username}"
+        return "Notification Management"
 
     def get_urls(self):
         urls = super().get_urls()
