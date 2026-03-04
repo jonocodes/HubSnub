@@ -2,6 +2,8 @@
 
 A Django-based GitHub App for intelligent notification filtering. HubSnub listens to GitHub webhooks, evaluates your notification preferences, and unsubscribes you from threads you don't care about — like team-only review requests when you weren't personally asked.
 
+![screenshot](docs/screenshot.png)
+
 ## Problem
 
 GitHub's email notifications lack the granularity of the Slack integration. There's no way to distinguish between "your review was personally requested" and "a team you're on was requested." This creates noise for developers on teams auto-assigned via CODEOWNERS.
