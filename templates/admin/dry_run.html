@@ -1,0 +1,70 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Dry Run{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-xl font-semibold mb-2">Dry Run — Notification Preview</h2>
+    <p class="text-gray-500 dark:text-gray-400">Fetches your current GitHub notifications and shows what HubSnub would do with each one based on your current preferences. No actions are taken.</p>
+</div>
+
+<form method="post" class="mb-6">
+    {% csrf_token %}
+    <button type="submit" class="border font-medium rounded-md shadow-sm text-sm px-4 py-2 bg-primary-600 text-white hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600">
+        Fetch Notifications
+    </button>
+</form>
+
+{% if error %}
+<div class="rounded-md bg-red-50 dark:bg-red-900/20 p-4 mb-6">
+    <p class="text-sm text-red-800 dark:text-red-200">Error fetching notifications: {{ error }}</p>
+</div>
+{% endif %}
+
+{% if notifications %}
+<div class="overflow-x-auto border rounded-md dark:border-gray-700">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-800">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Repo</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">#</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Title</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reason</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Verdict</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Details</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+            {% for n in notifications %}
+            <tr>
+                <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{{ n.repo }}</td>
+                <td class="px-4 py-3 text-sm">
+                    {% if n.github_url %}
+                    <a href="{{ n.github_url }}" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline">{{ n.number }}</a>
+                    {% else %}
+                    {{ n.number }}
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{{ n.title }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{{ n.type }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{{ n.reason }}</td>
+                <td class="px-4 py-3 text-sm">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        {% if n.decision == 'allow' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400
+                        {% elif n.decision == 'suppress' %}bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400
+                        {% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+                        {{ n.decision }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{{ n.verdict_reason }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% elif not error %}
+<p class="text-gray-500 dark:text-gray-400">Click "Fetch Notifications" to preview what HubSnub would do with your current notifications.</p>
+{% endif %}
+{% endblock %}
