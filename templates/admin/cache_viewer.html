@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Cache Viewer{% endblock %}
+
+{% block content %}
+<h2>Thread ID Cache</h2>
+<p>In-memory LRU cache mapping repo:thread_number to GitHub notification thread IDs.</p>
+<p><strong>Cache size:</strong> {{ cache_size }} / {{ max_size }}</p>
+
+<form method="post" action="{% url 'admin:cache_clear' %}" style="margin-bottom: 1em;">
+    {% csrf_token %}
+    <input type="submit" value="Clear Cache" onclick="return confirm('Clear the entire thread ID cache?');">
+</form>
+
+{% if entries %}
+<table>
+    <thead>
+        <tr>
+            <th>Cache Key</th>
+            <th>Thread ID</th>
+            <th>GitHub Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in entries %}
+        <tr>
+            <td>{{ entry.key }}</td>
+            <td>{{ entry.thread_id }}</td>
+            <td>
+                {% if entry.github_url %}
+                <a href="{{ entry.github_url }}" target="_blank">View on GitHub</a>
+                {% else %}
+                -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Cache is empty.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Dry Run{% endblock %}
+
+{% block content %}
+<h2>Dry Run — Notification Preview</h2>
+<p>Fetches your current GitHub notifications and shows what HubSnub would do with each one based on your current preferences. No actions are taken.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="submit" value="Fetch Notifications" class="default" style="margin-bottom: 1em;">
+</form>
+
+{% if error %}
+<div class="errornote">
+    <p>Error fetching notifications: {{ error }}</p>
+</div>
+{% endif %}
+
+{% if notifications %}
+<table>
+    <thead>
+        <tr>
+            <th>Repo</th>
+            <th>#</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Reason</th>
+            <th>Verdict</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for n in notifications %}
+        <tr>
+            <td>{{ n.repo }}</td>
+            <td>
+                {% if n.github_url %}
+                <a href="{{ n.github_url }}" target="_blank">{{ n.number }}</a>
+                {% else %}
+                {{ n.number }}
+                {% endif %}
+            </td>
+            <td>{{ n.title }}</td>
+            <td>{{ n.type }}</td>
+            <td>{{ n.reason }}</td>
+            <td>
+                <span style="
+                    padding: 2px 8px;
+                    border-radius: 3px;
+                    font-weight: bold;
+                    color: white;
+                    background-color: {% if n.decision == 'allow' %}#28a745{% elif n.decision == 'suppress' %}#dc3545{% else %}#6c757d{% endif %};
+                ">{{ n.decision }}</span>
+            </td>
+            <td>{{ n.verdict_reason }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% elif not error %}
+<p>Click "Fetch Notifications" to preview what HubSnub would do with your current notifications.</p>
+{% endif %}
+{% endblock %}
