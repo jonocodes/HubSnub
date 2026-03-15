@@ -1,0 +1,20 @@
+services:
+  web:
+    build:
+      context: .
+    env_file:
+      - .env
+    # ports:
+    # - "8000:8000"
+    volumes:
+      - .:/app
+      - hubsnub_data:/app/data
+      - hubsnub_static:/app/staticfiles
+    environment:
+      SQLITE_PATH: /app/data/db.sqlite3
+    command: python manage.py runserver 0.0.0.0:8000
+    restart: unless-stopped
+
+volumes:
+  hubsnub_data:
+  hubsnub_static:
