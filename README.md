@@ -36,6 +36,22 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+### Docker Compose
+
+```bash
+cp .env.example .env
+# Edit .env with your credentials and add your Docker host if needed
+docker compose up --build
+```
+
+The app will be available at `http://localhost:8000`. Database data is stored in the named `hubsnub_data` volume, and migrations run automatically when the container starts.
+
+To create an admin user:
+
+```bash
+docker compose run --rm web python manage.py createsuperuser
+```
+
 ### Environment Variables
 
 | Variable | Description |
@@ -47,6 +63,8 @@ python manage.py runserver
 | `GITHUB_USERNAME` | Your GitHub login (e.g., `jonocodes`) |
 | `DJANGO_SECRET_KEY` | Django secret key |
 | `ALLOWED_HOSTS` | Comma-separated list of allowed hosts |
+| `DEBUG` | Django debug mode (`True` for local dev) |
+| `SQLITE_PATH` | Optional SQLite file path inside the container/app |
 
 ### Register a GitHub App
 
