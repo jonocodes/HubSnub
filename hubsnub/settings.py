@@ -17,6 +17,16 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    h.strip()
+    for h in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if h.strip()
+]
+
+if proxy_ssl_header := os.environ.get("SECURE_PROXY_SSL_HEADER", ""):
+    SECURE_PROXY_SSL_HEADER = (proxy_ssl_header, "https")
+
+
 INSTALLED_APPS = [
     "unfold",
     "django.contrib.admin",
