@@ -7,7 +7,7 @@ services:
     expose:
       - "8000"
     volumes:
-      - .:/app
+      # - .:/app
       - hubsnub_data:/app/data
       - hubsnub_static:/app/staticfiles
     environment:
